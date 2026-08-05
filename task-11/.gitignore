@@ -1,13 +1,16 @@
-# ChromaDB
-chroma_db/
-
-# Python
-__pycache__/
-*.pyc
-
 # Virtual Environment
 .venv/
 venv/
 
 # Environment Variables
 .env
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# ChromaDB
+chroma_db/
+
+# Streamlit cache
+.streamlit/
