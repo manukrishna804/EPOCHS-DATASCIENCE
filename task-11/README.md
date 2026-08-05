@@ -1,149 +1,266 @@
----
-title: Folio PDF Chat
-emoji: 📄
-colorFrom: teal
-colorTo: blue
-sdk: gradio
-sdk_version: 5.29.0
-app_file: app.py
-pinned: false
-short_description: PDF RAG chatbot with Groq
----
-
-# Folio — PDF Question Answering (RAG)
+# 📄 PDF Question Answering Application using RAG
 
 ## Participant Details
+- Name: Manu Krishna C.K.
+- MUID: manukrishnack-1@mulearn
 
-- **Name:** Manukrishna CK
-- **MUID:** manukrishnack-1@mulearn
-
----
-
-## Project Overview
-
-**Folio** is a PDF question-answering app built with Retrieval-Augmented Generation (RAG). Upload a PDF, ask questions, and get answers grounded in the document — with conversation memory for natural follow-ups.
+A Streamlit-based Retrieval-Augmented Generation (RAG) application that allows users to upload a PDF and ask questions in natural language. The application retrieves the most relevant content from the uploaded document using semantic search and generates context-aware answers using the Groq LLM API.
 
 ---
 
-## Features
+# 🚀 Features
 
-- Upload and process PDF documents
-- Text chunking and semantic retrieval
-- Groq Llama 3.3 answers grounded in retrieved context
-- Conversation memory for follow-up questions
-- Clean white Gradio UI
-
----
-
-## Technologies Used
-
-- Python
-- Gradio
-- NumPy TF-IDF vector search (lightweight embeddings)
-- PyPDF
-- Groq API (Llama 3.3)
+* 📄 Upload any PDF document
+* ✂️ Automatic document chunking
+* 🧠 Semantic search using vector embeddings
+* 📚 ChromaDB vector database
+* 🤖 AI-powered question answering using Groq
+* 💬 Conversation memory for follow-up questions
+* 📑 Source citations for every response
+* ⚡ Simple and interactive Streamlit interface
 
 ---
 
-## Memory Implementation
-
-Conversation memory keeps recent user questions and assistant answers in a session list. Each new query is sent to the LLM together with that history and the retrieved PDF chunks, so follow-up questions work without repeating earlier context. History is capped (last 12 turns) to keep memory usage low.
-
----
-
-## How It Works
-
-1. Upload a PDF
-2. Extract and chunk text
-3. Embed chunks with TF-IDF vectors
-4. Store vectors in memory
-5. On each question, retrieve top matching chunks
-6. Send context + chat history to Groq
-7. Show the grounded answer (with source pages when available)
-
----
-
-## Project Structure
+# 🏗️ Project Architecture
 
 ```
-task-11/
+                Upload PDF
+                     │
+                     ▼
+              PyPDFLoader
+                     │
+                     ▼
+      RecursiveCharacterTextSplitter
+                     │
+                     ▼
+      Sentence Transformer Embeddings
+                     │
+                     ▼
+                 ChromaDB
+                     │
+                     ▼
+              Similarity Search
+                     │
+                     ▼
+          Top Relevant Chunks
+                     │
+                     ▼
+        Conversation History
+                     │
+                     ▼
+                 Groq LLM
+                     │
+                     ▼
+               Generated Answer
+```
+
+---
+
+# 🛠️ Technologies Used
+
+| Component             | Technology                             |
+| --------------------- | -------------------------------------- |
+| UI                    | Streamlit                              |
+| PDF Loader            | PyPDFLoader (LangChain Community)      |
+| Text Splitter         | RecursiveCharacterTextSplitter         |
+| Embedding Model       | sentence-transformers/all-MiniLM-L6-v2 |
+| Vector Database       | ChromaDB                               |
+| LLM                   | Groq API (Llama 3.3 70B Versatile)     |
+| Conversation Memory   | Custom ConversationMemory Class        |
+| Environment Variables | python-dotenv                          |
+
+---
+
+# 📂 Project Structure
+
+```
+pdf-qa-rag-assistant/
+
+│
 ├── app.py
-├── chatbot.py
-├── pdf_loader.py
-├── vector_store.py
-├── rag.py
-├── memory.py
+├── rag_pipeline.py
 ├── requirements.txt
-└── .env.example
+├── README.md
+├── .env
+├── chroma_db/
+├── sample_data/
+└── screenshots/
 ```
 
 ---
 
-## Local Setup
+# 🔄 RAG Pipeline
+
+### 1. Load PDF
+
+The uploaded PDF is read using **PyPDFLoader** from LangChain Community.
+
+---
+
+### 2. Split into Chunks
+
+The document is divided into smaller overlapping chunks using:
+
+* Chunk Size: **1000**
+* Chunk Overlap: **150**
+
+This preserves context while improving retrieval quality.
+
+---
+
+### 3. Generate Embeddings
+
+Each chunk is converted into a vector using:
+
+```
+sentence-transformers/all-MiniLM-L6-v2
+```
+
+These embeddings capture the semantic meaning of the text.
+
+---
+
+### 4. Store in ChromaDB
+
+The embeddings are stored inside a local Chroma vector database.
+
+The vector database is created once per uploaded document and reused during the session.
+
+---
+
+### 5. Retrieve Relevant Chunks
+
+For every user question:
+
+* the question is embedded,
+* ChromaDB performs similarity search,
+* the top **4** most relevant chunks are retrieved.
+
+---
+
+### 6. Generate Answer
+
+The retrieved chunks together with the conversation history are sent to the Groq LLM.
+
+The model generates an answer strictly based on the retrieved document context.
+
+---
+
+# 💬 Conversation Memory
+
+A lightweight custom `ConversationMemory` class maintains chat history.
+
+Each interaction is stored as:
+
+* User Message
+* Assistant Response
+
+The stored history is included in every new prompt sent to Groq, allowing the assistant to understand follow-up questions such as:
+
+* "Explain XGBoost."
+* "What are its advantages?"
+* "Where is it used?"
+
+---
+
+# 📄 Source Citations
+
+Every answer includes the retrieved document chunks used to generate the response.
+
+Each source displays:
+
+* Source Number
+* PDF Page Number
+* Retrieved Chunk Text
+
+This improves transparency and allows users to verify the generated answer.
+
+---
+
+# ▶️ Installation
+
+Clone the repository:
 
 ```bash
-python -m venv venv
-venv\Scripts\activate   # Windows
+git clone https://github.com/yourusername/pdf-qa-rag-assistant.git
+
+cd pdf-qa-rag-assistant
+```
+
+Create a virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+Activate it:
+
+### Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
 
-Create `.env`:
+---
 
-```env
-GROQ_API_KEY=your_groq_api_key_here
+# 🔑 Environment Variables
+
+Create a `.env` file.
+
 ```
+GROQ_API_KEY=your_groq_api_key
+```
+
+---
+
+# ▶️ Run the Application
 
 ```bash
-python app.py
+streamlit run app.py
 ```
 
-Open **http://127.0.0.1:7860/**
+---
+
+
+
+# ⚠️ Challenges Faced
+
+* Integrating LangChain with the latest package structure.
+* Managing conversation history across Streamlit reruns.
+* Preventing repeated creation of the vector database.
+* Designing prompts that use only retrieved document context.
+* Displaying retrieved source chunks alongside generated answers.
 
 ---
 
-## Deployment
+# 🚀 Future Improvements
 
-**Recommended:** Hugging Face Spaces (more RAM than Render free tier).
-
-**Deployment Link:** _https://huggingface.co/spaces/manukrishna804/folio-pdf-chat_ (create Space, then this URL goes live)
-
-### Hugging Face Spaces
-
-1. Open https://huggingface.co/new-space and sign in
-2. Space name: `folio-pdf-chat`
-3. SDK: **Gradio**
-4. Create the Space, then in **Settings → Variables and secrets** add `GROQ_API_KEY`
-5. Either:
-   - **Files** tab → upload everything from `task-11/`, or
-   - **Settings → Store Space files in GitHub** / sync from `EPOCHS-DATA-SCIENCE` with path `task-11`
-
-### Render (after slim update)
-
-Root Directory: `task-11`  
-Build: `pip install -r requirements.txt`  
-Start: `python app.py`  
-Env: `GROQ_API_KEY`  
-Then **Clear build cache & deploy** so old torch/onnx packages are not reused.
+* Support multiple PDFs simultaneously.
+* Persist ChromaDB across sessions.
+* Streaming responses.
+* Highlight relevant text directly inside the PDF.
+* Add model selection from the UI.
+* Display similarity scores for retrieved chunks.
+* Deploy with Docker.
 
 ---
 
-## Challenges Faced
+# 👨‍💻 Author
 
-- Render free instances (512MB) crash when loading embedding runtimes
-- Balancing retrieval quality with a lightweight stack suitable for free hosting
-- Keeping conversation memory useful without unbounded RAM growth
+**Manu Krishna**
 
----
+B.Tech Information Technology
 
-## Future Improvements
-
-- Multi-PDF support
-- Persistent vector store across restarts
-- Document summarization
-- Auth for private documents
+Government Engineering College Palakkad
 
 ---
 
-## License
+# 📄 License
 
-Built for **Epochs '26 – Assignment 11** (educational use).
+This project is developed for educational purposes as part of the **Epochs '26 Assignment 11**.
