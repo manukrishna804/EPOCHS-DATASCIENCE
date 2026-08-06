@@ -1,7 +1,7 @@
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
+from langchain_community.vectorstores import FAISS
 
 from groq import Groq
 from dotenv import load_dotenv
@@ -66,10 +66,9 @@ def create_vector_store(chunks):
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
 
-    vector_store = Chroma.from_documents(
+    vector_store = FAISS.from_documents(
         documents=chunks,
-        embedding=embeddings,
-        persist_directory="./chroma_db"
+        embedding=embeddings
     )
 
     return vector_store
@@ -114,10 +113,6 @@ Current Question:
 
 Answer:
 """
-
-    return prompt
-
-    
 
     return prompt
 def generate_answer(question, documents, history):
