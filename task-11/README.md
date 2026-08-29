@@ -268,6 +268,8 @@ This project is optimized for deployment on Streamlit Community Cloud.
 
 ---
 
+https://pdf-app-rag-assistant-nqtmsafumkxaznydo2kofb.streamlit.app/
+
 # 👨‍💻 Author
 
 **Manu Krishna**
